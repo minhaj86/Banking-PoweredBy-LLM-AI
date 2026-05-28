@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{ts,tsx,js,mjs,json,yaml,yml,xml}]
+indent_style = space
+indent_size = 2
+
+[*.java]
+indent_style = space
+indent_size = 4
+
+[*.sh]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+[*.{ps1,psd1,psm1}]
+indent_style = space
+indent_size = 4
+
+[*.cmd]
+end_of_line = crlf
+
+[*.md]
+trim_trailing_whitespace = false
