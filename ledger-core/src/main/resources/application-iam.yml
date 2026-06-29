@@ -1,0 +1,8 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${LEDGER_OIDC_ISSUER}
+          jwk-set-uri: ${LEDGER_JWK_SET_URI}
+          audiences: ledger-core

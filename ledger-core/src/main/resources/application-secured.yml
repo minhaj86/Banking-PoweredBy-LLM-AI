@@ -1,0 +1,7 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${LEDGER_OIDC_ISSUER}
+          audiences: ${LEDGER_OIDC_AUDIENCE:ledger-core}
