@@ -1,0 +1,40 @@
+name: finance-ledger-core
+services:
+  db:
+    image: postgres:17.10-alpine
+    environment:
+      POSTGRES_DB: ledger
+      POSTGRES_USER: ledger_bootstrap
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-bootstrap-only}
+      LEDGER_MIGRATION_PASSWORD: ${MIGRATION_DB_PASSWORD:-dev-migration-only}
+      LEDGER_APP_PASSWORD: ${DB_PASSWORD:-dev-app-only}
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    volumes:
+      - ledger-data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sh:/docker-entrypoint-initdb.d/10-ledger.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledger_bootstrap -d ledger"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  app:
+    build:
+      context: ..
+      dockerfile: ledger-core/Dockerfile
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/ledger
+      SPRING_PROFILES_ACTIVE: local
+      DB_USER: ledger_app
+      DB_PASSWORD: ${DB_PASSWORD:-dev-app-only}
+      MIGRATION_DB_USER: ledger_migrator
+      MIGRATION_DB_PASSWORD: ${MIGRATION_DB_PASSWORD:-dev-migration-only}
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75.0"
+      TZ: UTC
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+volumes:
+  ledger-data:
