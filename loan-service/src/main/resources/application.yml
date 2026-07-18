@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: loan-service
+  datasource:
+    url: ${LOAN_DB_URL:jdbc:postgresql://localhost:5433/loans}
+    username: ${LOAN_DB_USER:loan_app}
+    password: ${LOAN_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 12
+      connection-timeout: 5000
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      connection-init-sql: "SET search_path TO origination; SET TIME ZONE 'UTC'; SET statement_timeout='15s'; SET lock_timeout='5s'"
+  flyway:
+    url: ${LOAN_DB_URL:jdbc:postgresql://localhost:5433/loans}
+    user: ${LOAN_MIGRATION_USER:loan_migrator}
+    password: ${LOAN_MIGRATION_PASSWORD}
+    default-schema: origination
+    schemas: origination
+    placeholders:
+      runtimeRole: ${LOAN_DB_USER:loan_app}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: origination
+        jdbc:
+          time_zone: UTC
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+      fail-on-numbers-for-enums: true
+    serialization:
+      write-dates-as-timestamps: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+server:
+  port: ${PORT:8081}
+  error:
+    include-message: never
+  tomcat:
+    max-http-form-post-size: 11MB
+    max-swallow-size: 11MB
+    threads:
+      max: 100
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+loan:
+  encryption-key: ${LOAN_ENCRYPTION_KEY}
+  local-jwt-secret: ${LOAN_LOCAL_JWT_SECRET:}
+  issuer: ${LOAN_OIDC_ISSUER:}
+  jwk-set-uri: ${LOAN_JWK_SET_URI:}
+  audience: ${LOAN_AUDIENCE:loan-service}
+  synthetic-verification: ${LOAN_SYNTHETIC_VERIFICATION:false}
+  workers-enabled: ${LOAN_WORKERS_ENABLED:true}
+  retention-enabled: ${LOAN_RETENTION_ENABLED:false}
+  scanner-host: ${CLAMAV_HOST:}
+  scanner-port: ${CLAMAV_PORT:3310}
+  ai:
+    provider: ${AI_PROVIDER:mock}
+    endpoint: ${AI_ENDPOINT:}
+    model: ${AI_MODEL:}
+    api-key: ${AI_API_KEY:}
+    data-handling-approved: ${AI_DATA_HANDLING_APPROVED:false}
+  storage:
+    endpoint: ${S3_ENDPOINT:http://localhost:9000}
+    bucket: ${S3_BUCKET:loan-evidence}
+    region: ${S3_REGION:us-east-1}
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+  ledger:
+    url: ${LEDGER_URL:http://localhost:8080}
+    id: ${LOAN_LEDGER_ID:}
+    bearer-token: ${LEDGER_BEARER_TOKEN:}
+    token-uri: ${LEDGER_TOKEN_URI:}
+    client-id: ${LEDGER_CLIENT_ID:}
+    client-secret: ${LEDGER_CLIENT_SECRET:}
+logging:
+  level:
+    org.apache.pdfbox: ERROR
+    org.springframework.ai: WARN
+    software.amazon.awssdk: WARN
+
