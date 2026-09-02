@@ -1,0 +1,10 @@
+{
+  "productId":"personal-sek","productVersion":1,"requestedAmount":"100000.00","currency":"SEK","termMonths":60,"purpose":"Synthetic demonstration",
+  "identity":{"legalName":"Synthetic Applicant","dateOfBirth":"1990-01-01","identityIdentifier":"SYNTHETIC-ID","email":"synthetic@example.invalid","phone":"+460000000","address":"Synthetic Street 1","countryOfResidence":"SE"},
+  "employment":{"type":"EMPLOYED","startDate":"2020-01-01","employer":"Synthetic Employer"},
+  "income":{"grossAmount":"40000.00","netAmount":"30000.00","frequency":"MONTHLY","currency":"SEK","periodStart":"2026-10-01","periodEnd":"2026-10-27","variable":false,"otherSources":[]},
+  "expenses":{"housing":"8000.00","otherNonDebt":"4000.00","householdSize":1,"currency":"SEK","excludesDebtRepayments":true},"debts":[],
+  "kyc":{"questionnaireVersion":"demo-1","answeredAt":"2026-10-01T00:00:00Z","relationshipPurpose":"Personal loan","sourceOfFunds":"Employment","taxResidencies":["SE"],"pepDeclared":false},
+  "privacy":{"noticeVersion":"demo-1","acknowledgedAt":"2026-10-01T00:00:00Z","financialEvidenceProcessingAcknowledged":true}
+}
+
