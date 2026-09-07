@@ -1,0 +1,47 @@
+server:
+  port: 8082
+  tomcat:
+    threads:
+      max: 80
+    max-connections: 200
+    accept-count: 40
+  forward-headers-strategy: none
+  servlet:
+    session:
+      timeout: 30m
+spring:
+  application:
+    name: loan-bff
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      password: ${REDIS_PASSWORD}
+      timeout: 3s
+  session:
+    store-type: redis
+    redis:
+      namespace: loan:bff:sessions
+      repository-type: indexed
+      flush-mode: immediate
+  servlet:
+    multipart:
+      enabled: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+bff:
+  origin: ${BFF_ORIGIN:http://localhost:18082}
+  issuer: ${IAM_ISSUER:http://localhost:18082/auth/realms/loans}
+  internal-issuer: ${IAM_INTERNAL_ISSUER:http://keycloak:8080/auth/realms/loans}
+  client-secret: ${BFF_CLIENT_SECRET}
+  encryption-key: ${BFF_ENCRYPTION_KEY}
+  secure-cookie: ${BFF_SECURE_COOKIE:true}
+  loan-url: ${LOAN_SERVICE_URL:http://loans:8081}
+  instance-id: ${BFF_INSTANCE_ID:bff}
+logging:
+  level:
+    org.springframework.security: WARN
+    io.lettuce.core: WARN
+
