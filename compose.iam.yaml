@@ -1,0 +1,136 @@
+# Local-only real IAM overlay. Use with compose.yaml; never delete the existing volumes.
+services:
+  iam-db:
+    image: postgres:17.10-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${IAM_DB_PASSWORD:?Run iam/init.ps1 or iam/init.sh first}
+    volumes: [loan-iam-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.7
+    command: ["start-dev", "--features=step-up-authentication"]
+    mem_limit: 768m
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://iam-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${IAM_DB_PASSWORD}
+      KC_HOSTNAME: http://localhost:18082/auth
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HOSTNAME_STRICT: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: local-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${IAM_ADMIN_PASSWORD}
+    depends_on: {iam-db: {condition: service_healthy}}
+    # Authorised local administration/tests only. Not an alternate public issuer.
+    ports: ["127.0.0.1:18085:8080"]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/9000; printf \"GET /auth/health/ready HTTP/1.0\\r\\n\\r\\n\" >&3; grep -q UP <&3'"]
+      interval: 5s
+      timeout: 3s
+      start_period: 50s
+      retries: 30
+  iam-bootstrap:
+    image: python:3.13.9-alpine
+    volumes: ["./iam:/bootstrap:ro"]
+    command: ["python", "/bootstrap/bootstrap.py"]
+    environment:
+      IAM_ADMIN_PASSWORD: ${IAM_ADMIN_PASSWORD}
+      BFF_CLIENT_SECRET: ${BFF_CLIENT_SECRET}
+      LOAN_LEDGER_CLIENT_SECRET: ${LOAN_LEDGER_CLIENT_SECRET}
+      LEDGER_ADMIN_CLIENT_SECRET: ${LEDGER_ADMIN_CLIENT_SECRET}
+      IAM_APPLICANT_PASSWORD: ${IAM_APPLICANT_PASSWORD}
+      IAM_OFFICER_PASSWORD: ${IAM_OFFICER_PASSWORD}
+      IAM_COMPLIANCE_PASSWORD: ${IAM_COMPLIANCE_PASSWORD}
+      IAM_OPERATIONS_PASSWORD: ${IAM_OPERATIONS_PASSWORD}
+      IAM_CONFIGURATION_PASSWORD: ${IAM_CONFIGURATION_PASSWORD}
+    depends_on: {keycloak: {condition: service_healthy}, mailpit: {condition: service_healthy}}
+  mailpit:
+    image: axllent/mailpit:v1.29.2
+    ports: ["127.0.0.1:18084:8025"]
+    environment: {MP_MAX_MESSAGES: "200"}
+    volumes: ["./scripts/container-health.sh:/opt/bank/container-health.sh:ro"]
+    healthcheck:
+      test: ["CMD", "sh", "/opt/bank/container-health.sh", "mailpit"]
+      interval: 5s
+      timeout: 6s
+      retries: 20
+  redis:
+    image: redis:7.4.5-alpine
+    environment: {REDIS_PASSWORD: "${REDIS_PASSWORD}"}
+    command: ["sh", "-ec", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --maxmemory 128mb --maxmemory-policy noeviction --appendonly no --save ''"]
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping | grep -q PONG"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  ledger:
+    mem_limit: 512m
+    ports: !reset []
+    environment:
+      SPRING_PROFILES_ACTIVE: iam
+      LEDGER_OIDC_ISSUER: http://localhost:18082/auth/realms/loans
+      LEDGER_JWK_SET_URI: http://keycloak:8080/auth/realms/loans/protocol/openid-connect/certs
+    depends_on:
+      iam-bootstrap: {condition: service_completed_successfully}
+  ledger-bootstrap:
+    image: python:3.13.9-alpine
+    entrypoint: ["python", "/bootstrap/ledger-bootstrap.py"]
+    command: !reset []
+    volumes: ["./iam:/bootstrap:ro"]
+    environment:
+      LEDGER_ADMIN_CLIENT_SECRET: ${LEDGER_ADMIN_CLIENT_SECRET}
+    depends_on:
+      iam-bootstrap: {condition: service_completed_successfully}
+  loans:
+    mem_limit: 768m
+    ports: !reset []
+    environment:
+      SPRING_PROFILES_ACTIVE: local,iam
+      LOAN_SYNTHETIC_VERIFICATION: "true"
+      LOAN_OIDC_ISSUER: http://localhost:18082/auth/realms/loans
+      LOAN_JWK_SET_URI: http://keycloak:8080/auth/realms/loans/protocol/openid-connect/certs
+      LEDGER_TOKEN_URI: http://keycloak:8080/auth/realms/loans/protocol/openid-connect/token
+      LEDGER_CLIENT_ID: loan-ledger
+      LEDGER_CLIENT_SECRET: ${LOAN_LEDGER_CLIENT_SECRET}
+  bff-a: &bff
+    build: {context: ., dockerfile: loan-bff/Dockerfile}
+    image: finance-loan-bff:local
+    mem_limit: 384m
+    environment: &bff-env
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      BFF_CLIENT_SECRET: ${BFF_CLIENT_SECRET}
+      BFF_ENCRYPTION_KEY: ${BFF_ENCRYPTION_KEY}
+      BFF_SECURE_COOKIE: "false"
+      BFF_INSTANCE_ID: bff-a
+    depends_on:
+      redis: {condition: service_healthy}
+      loans: {condition: service_healthy}
+      iam-bootstrap: {condition: service_completed_successfully}
+  bff-b:
+    <<: *bff
+    build: !reset null
+    environment:
+      <<: *bff-env
+      BFF_INSTANCE_ID: bff-b
+  web:
+    build: {context: ., dockerfile: loan-web/Dockerfile}
+    ports: ["127.0.0.1:18082:8080"]
+    depends_on:
+      bff-a: {condition: service_healthy}
+      bff-b: {condition: service_healthy}
+  ledger-proof:
+    profiles: [verification]
+    image: python:3.13.9-alpine
+    entrypoint: ["python", "/bootstrap/assert-zero-account.py"]
+    volumes: ["./iam:/bootstrap:ro"]
+    environment:
+      LOAN_LEDGER_CLIENT_SECRET: ${LOAN_LEDGER_CLIENT_SECRET}
+volumes:
+  loan-iam-data:

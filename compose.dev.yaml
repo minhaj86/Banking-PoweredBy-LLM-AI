@@ -1,0 +1,23 @@
+# Add after compose.yaml and compose.iam.yaml. The browser still uses localhost:18082.
+services:
+  web-dev:
+    image: node:24.22.1-alpine
+    working_dir: /web
+    volumes:
+      - ./loan-web:/web
+      - loan-web-node-modules:/web/node_modules
+    command: ["sh", "-ec", "npm ci --no-fund && npm run dev -- --host 0.0.0.0"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5173').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      start_period: 120s
+      retries: 30
+    # Vite stays on the private Compose network; there is no additional published port.
+  web:
+    volumes:
+      - ./loan-web/spa.dev.conf:/etc/nginx/loan-spa.conf:ro
+      - ./loan-web/dev-security-headers.conf:/etc/nginx/dev-security-headers.conf:ro
+    depends_on: {web-dev: {condition: service_healthy}}
+volumes:
+  loan-web-node-modules:
