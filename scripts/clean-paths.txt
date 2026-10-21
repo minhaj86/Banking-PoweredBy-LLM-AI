@@ -1,0 +1,9 @@
+ledger-core/target
+loan-service/target
+loan-bff/target
+loan-web/dist
+loan-web/coverage
+loan-web/playwright-report
+loan-web/test-results
+loan-web/tsconfig.tsbuildinfo
+.reports
