@@ -1,0 +1,40 @@
+# Lifecycle test fixture only: separate project, no published ports or financial data.
+name: placeholder-bank-lifecycle-smoke
+services:
+  db:
+    image: postgres:17.10-alpine
+    environment:
+      POSTGRES_PASSWORD: ${SMOKE_PASSWORD:?Test harness supplies a private synthetic password}
+    volumes: [smoke-database:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+  cache:
+    image: redis:7.4.5-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+  initialize:
+    image: redis:7.4.5-alpine
+    command: ["sh", "-ec", "test -f /state/sentinel || printf 'preserve me\\n' >/state/sentinel"]
+    volumes: [smoke-marker:/state]
+    depends_on:
+      db: {condition: service_healthy}
+      cache: {condition: service_healthy}
+  app:
+    build: {context: ., dockerfile: Dockerfile}
+    image: placeholder-bank-lifecycle-probe:local
+    ports: ["127.0.0.1:${SMOKE_PORT:-0}:80"]
+    depends_on: {initialize: {condition: service_completed_successfully}}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 1s
+      timeout: 3s
+      retries: 3
+volumes:
+  smoke-database:
+  smoke-marker:
