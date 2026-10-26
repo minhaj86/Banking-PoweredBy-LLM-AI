@@ -1,0 +1,260 @@
+﻿{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Ledger: unit tests",
+      "type": "shell",
+      "command": "./mvnw",
+      "windows": {
+        "command": ".\\mvnw.cmd"
+      },
+      "args": ["test"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Ledger: verify",
+      "type": "shell",
+      "command": "./mvnw",
+      "windows": {
+        "command": ".\\mvnw.cmd"
+      },
+      "args": ["verify"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Ledger: run",
+      "type": "shell",
+      "command": "./mvnw",
+      "windows": {
+        "command": ".\\mvnw.cmd"
+      },
+      "args": ["-pl", "ledger-core", "spring-boot:run"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Doctor",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "doctor"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "doctor"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Start",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "start"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "start"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Stop",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "stop"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "stop"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Restart",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "restart"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "restart"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Build",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "build"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "build"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Test",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "test"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "test"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Deps",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "deps"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "deps"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Status",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "status"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "status"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Logs",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "logs"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "logs"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Placeholder Bank: Clean",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/bank.sh", "clean"],
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}/scripts/bank.ps1",
+          "clean"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
