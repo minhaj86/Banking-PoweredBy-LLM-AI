@@ -2,6 +2,8 @@
 
 [PowerShell](../scripts/bank.ps1) and [Bash](../scripts/bank.sh) expose the same commands. Both derive the repository root from their own file, quote paths, validate service names against Compose, and propagate failures. Neither evaluates `.env`, stages files nor changes dependency versions. `help` and `clean` work without Docker or native build tools.
 
+For a shorter Docker-development command, [run-dev.sh](../scripts/run-dev.sh) forwards the lifecycle commands to `bank.sh`. It defaults to `start`, and supports `start`, `stop`, `restart`, `status`, `deps`, `logs`, `build`, and `doctor` with the same options and safety guarantees.
+
 ## Commands
 
 | Command | Behavior / required tools |
@@ -58,6 +60,15 @@ Build always builds all configured modules/images; service selection is for life
 ./scripts/bank.sh logs --service keycloak --tail 50 --follow
 ./scripts/bank.sh restart --service bff-a --service bff-b
 ./scripts/bank.sh stop
+```
+
+The equivalent short entry point is:
+
+```bash
+./scripts/run-dev.sh start
+./scripts/run-dev.sh status
+./scripts/run-dev.sh deps --service loans
+./scripts/run-dev.sh stop
 ```
 
 These examples assume setup is complete. Initialization is `powershell -NoProfile -ExecutionPolicy Bypass -File iam/init.ps1` or `sh iam/init.sh` (OpenSSL). PowerShell examples also accept that process-only execution-policy prefix. Bash examples require `chmod +x scripts/bank.sh`, or invoke `bash scripts/bank.sh` explicitly. No global execution policy or Git identity is changed.
