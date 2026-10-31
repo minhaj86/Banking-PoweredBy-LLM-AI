@@ -12,6 +12,8 @@ A working local banking foundation: a PostgreSQL double-entry ledger, independen
 
 The root [pom.xml](pom.xml) is the Java 21 Maven parent/aggregator; the Maven Wrapper and shared version management stay here. Technical module names, Java packages, database/migration identities, realm/client IDs, API routes and external idempotency references are preserved. Frontend display branding is centralized in [brand.ts](loan-web/src/app/brand.ts).
 
+The editable [draw.io architecture diagram](docs/placeholder-bank-architecture.drawio) contains ten linked pages covering the system, web/IAM, service components, processing, lifecycle, provisioning recovery, ledger transactions, both data models and deployment. Open it with diagrams.net or a draw.io editor; shapes include source references in their tooltips.
+
 ## Prerequisites and first run
 
 Docker workflow: Git, Docker Desktop/Engine with Linux containers, and current Compose with `--wait` and `!reset` support. Host Java, Maven and Node are unnecessary for image builds and local stack commands. Native build/test additionally uses **JDK 21**, the Maven Wrapper, **Node >=24** and **npm**. Integration tests require Docker; browser tests require the ready IAM stack and Playwright Chromium. Bash secret initialization uses OpenSSL.
